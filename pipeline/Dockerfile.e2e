@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+# instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    netcat-openbsd \
+    openssh-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# establecer directorio de trabajo
+WORKDIR /app
+
+# copiar requirements para pruebas e2e
+COPY requirements-e2e.txt .
+
+# instalar dependencias python
+RUN pip install --no-cache-dir -r requirements-e2e.txt
+
+# copiar scripts y tests
+COPY tests/ ./tests/
+COPY scripts/ ./scripts/
+
+# crear directorio para resultados
+RUN mkdir -p test-results
+
+# configurar variables de entorno
+ENV PYTHONPATH=/app
+ENV PYTEST_ARGS="--verbose --tb=short"
+
+# comando por defecto
+CMD ["python", "-m", "pytest", "tests/e2e/", "-v", "--tb=short"] 

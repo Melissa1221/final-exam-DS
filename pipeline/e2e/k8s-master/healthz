@@ -1,0 +1,12 @@
+{
+  "status": "healthy",
+  "components": {
+    "api_server": "healthy",
+    "etcd": "healthy",
+    "scheduler": "healthy",
+    "controller_manager": "healthy"
+  },
+  "timestamp": "2024-01-01T00:00:00Z",
+  "cluster_name": "test-cluster",
+  "version": "1.28.0"
+} 

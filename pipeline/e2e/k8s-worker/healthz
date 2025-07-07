@@ -1,0 +1,10 @@
+{
+  "status": "healthy",
+  "components": {
+    "kubelet": "healthy",
+    "kube_proxy": "healthy",
+    "container_runtime": "healthy"
+  },
+  "timestamp": "2024-01-01T00:00:00Z",
+  "node_type": "worker"
+} 
