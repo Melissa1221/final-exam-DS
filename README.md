@@ -56,5 +56,32 @@ Ejecución
 ```bash
 ./pipeline/run_simple_pipeline.sh e2e
 ```
-Se agregó distintos servicios de prueba para verificar la veracidad de los test, contribuyendo con un proceso de pruebas exhaustivas
+Problema 3
+
+Implementación de dos microservicios en python con docker multi-stage.
+
+## servicios
+
+- user-service: (puerto 8000): crear, listar, eliminar usuarios
+- product-service: (puerto 8001): crear, buscar, actualizar productos
+
+```bash
+# Mover al directorio
+cd microservices
+
+# levantar servicios
+docker-compose up -d
+
+# publicar en registry local
+chmod +x scripts/build-and-publish.sh
+./scripts/build-and-publish.sh
+
+# verificar funcionamiento
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+
+# endpoints principales
+curl http://localhost:8000/users
+curl http://localhost:8001/products
+```
 
