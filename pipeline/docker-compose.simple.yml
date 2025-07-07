@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # simulacion basica de kubernetes master
+  k8s-master:
+    image: nginx:alpine
+    ports:
+      - "6443:80"
+    volumes:
+      - ./e2e/k8s-master:/usr/share/nginx/html:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # simulacion de worker
+  k8s-worker:
+    image: nginx:alpine
+    ports:
+      - "10250:80"
+    volumes:
+      - ./e2e/k8s-worker:/usr/share/nginx/html:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # aplicacion de prueba
+  nginx-demo:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./e2e/apps/nginx:/usr/share/nginx/html:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # prometheus simplificado
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./e2e/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3 
