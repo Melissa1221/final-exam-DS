@@ -2,7 +2,8 @@
 Permite tratar múltiples recursos Terraform como una única unidad lógica o módulo compuesto.
 """
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 
 class CompositeModule:
     """
