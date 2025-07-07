@@ -1,0 +1,112 @@
+❯ docker-compose up -d
+[+] Running 4/4
+ ✔ Network microservices_microservices-network  Created                                                                                                     0.1s 
+ ✔ Volume "microservices_shared-data"           Created                                                                                                     0.0s 
+ ✔ Container user-service                       Started                                                                                                     0.6s 
+ ✔ Container product-service                    Started                                                                                                     0.6s 
+❯ chmod +x scripts/build-and-publish.sh
+❯ ./scripts/build-and-publish.sh
+[16:57:13] iniciando pipeline de build y publicación
+[16:57:13] versión: latest
+[16:57:13] registry: localhost:5000
+[16:57:13] verificando docker...
+[16:57:13] docker ok
+[16:57:13] verificando registry local...
+[16:57:13] iniciando registry local...
+Unable to find image 'registry:2' locally
+2: Pulling from library/registry
+44cf07d57ee4: Download complete 
+8e82f80af0de: Download complete 
+6d464ea18732: Download complete 
+bbbdd6c6894b: Download complete 
+3493bf46cdec: Download complete 
+Digest: sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+Status: Downloaded newer image for registry:2
+56574f9ebe2718eda4424e3cd35526a17586684b2420b2b23368103dd80f41f5
+[16:57:20] registry disponible en localhost:5000
+[+] Building 1.6s (20/20) FINISHED                                                                                                                docker:default
+ => [internal] load build definition from Dockerfile                                                                                                        0.0s
+ => => transferring dockerfile: 1.32kB                                                                                                                      0.0s
+ => WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)                                                                              0.0s
+ => WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 21)                                                                             0.0s
+ => [internal] load metadata for docker.io/library/python:3.11-slim                                                                                         0.9s
+ => [internal] load .dockerignore                                                                                                                           0.0s
+ => => transferring context: 2B                                                                                                                             0.0s
+ => [internal] load build context                                                                                                                           0.0s
+ => => transferring context: 1.81kB                                                                                                                         0.0s
+ => [builder 1/6] FROM docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30                           0.0s
+ => => resolve docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30                                   0.0s
+ => CACHED [runtime  2/10] RUN groupadd -r appuser && useradd -r -g appuser appuser                                                                         0.0s
+ => CACHED [runtime  3/10] RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates     && rm -rf /var/lib/apt/lists/*          0.0s
+ => CACHED [builder 2/6] RUN apt-get update && apt-get install -y --no-install-recommends     build-essential     && rm -rf /var/lib/apt/lists/*            0.0s
+ => CACHED [builder 3/6] WORKDIR /build                                                                                                                     0.0s
+ => CACHED [builder 4/6] COPY requirements.txt .                                                                                                            0.0s
+ => CACHED [builder 5/6] RUN python -m venv /opt/venv                                                                                                       0.0s
+ => CACHED [builder 6/6] RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt                                 0.0s
+ => CACHED [runtime  4/10] COPY --from=builder /opt/venv /opt/venv                                                                                          0.0s
+ => CACHED [runtime  5/10] WORKDIR /app                                                                                                                     0.0s
+ => CACHED [runtime  6/10] RUN mkdir -p /app/data && chown -R appuser:appuser /app                                                                          0.0s
+ => CACHED [runtime  7/10] COPY scripts/entrypoint.sh /entrypoint.sh                                                                                        0.0s
+ => CACHED [runtime  8/10] RUN chmod +x /entrypoint.sh && chown appuser:appuser /entrypoint.sh                                                              0.0s
+ => [runtime  9/10] COPY app/ /app/                                                                                                                         0.0s
+ => [runtime 10/10] RUN chown -R appuser:appuser /app                                                                                                       0.3s
+ => exporting to image                                                                                                                                      0.2s
+ => => exporting layers                                                                                                                                     0.1s
+ => => exporting manifest sha256:af28cfa15ac0b2f64eb03e20e8669a4aa7aeb7c63133256a62ad491d6da47d24                                                           0.0s
+ => => exporting config sha256:f4bea117a6a9c814a1a01352c319d87e4de833b8502b9bdcf291f596e851761f                                                             0.0s
+ => => exporting attestation manifest sha256:4722ab5c0262d9308f0b6f9d84c34aaa232bfe213f238d1f61e97eeed996486e                                               0.0s
+ => => exporting manifest list sha256:d2c2222fe08b3d71031ffad3add5b596474a6ce496ee961488fb3f5967489479                                                      0.0s
+ => => naming to localhost:5000/microservices/user-service:latest                                                                                           0.0s
+ => => unpacking to localhost:5000/microservices/user-service:latest                                                                                        0.0s
+
+ 2 warnings found (use docker --debug to expand):
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 21)
+[+] Building 0.6s (20/20) FINISHED                                                                                                                docker:default
+ => [internal] load build definition from Dockerfile                                                                                                        0.0s
+ => => transferring dockerfile: 1.94kB                                                                                                                      0.0s
+ => WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)                                                                              0.0s
+ => WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 24)                                                                             0.0s
+ => [internal] load metadata for docker.io/library/python:3.11-slim                                                                                         0.3s
+ => [internal] load .dockerignore                                                                                                                           0.0s
+ => => transferring context: 2B                                                                                                                             0.0s
+ => [internal] load build context                                                                                                                           0.0s
+ => => transferring context: 159B                                                                                                                           0.0s
+ => [builder 1/6] FROM docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30                           0.0s
+ => => resolve docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30                                   0.0s
+ => CACHED [runtime  2/10] RUN groupadd -r appuser && useradd -r -g appuser appuser                                                                         0.0s
+ => CACHED [runtime  3/10] RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates     && rm -rf /var/lib/apt/lists/*     &&   0.0s
+ => CACHED [builder 2/6] RUN apt-get update && apt-get install -y --no-install-recommends     build-essential     && rm -rf /var/lib/apt/lists/*            0.0s
+ => CACHED [builder 3/6] WORKDIR /build                                                                                                                     0.0s
+ => CACHED [builder 4/6] COPY requirements.txt .                                                                                                            0.0s
+ => CACHED [builder 5/6] RUN python -m venv /opt/venv                                                                                                       0.0s
+ => CACHED [builder 6/6] RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt                                 0.0s
+ => CACHED [runtime  4/10] COPY --from=builder /opt/venv /opt/venv                                                                                          0.0s
+ => CACHED [runtime  5/10] WORKDIR /app                                                                                                                     0.0s
+ => CACHED [runtime  6/10] RUN mkdir -p /app/data && chown -R appuser:appuser /app                                                                          0.0s
+ => CACHED [runtime  7/10] COPY scripts/entrypoint.sh /entrypoint.sh                                                                                        0.0s
+ => CACHED [runtime  8/10] RUN chmod +x /entrypoint.sh && chown appuser:appuser /entrypoint.sh                                                              0.0s
+ => CACHED [runtime  9/10] COPY app/ /app/                                                                                                                  0.0s
+ => CACHED [runtime 10/10] RUN chown -R appuser:appuser /app                                                                                                0.0s
+ => exporting to image                                                                                                                                      0.1s
+ => => exporting layers                                                                                                                                     0.0s
+ => => exporting manifest sha256:2b5fdbc714ec00afd3f883a66c584f50c2152b66bc0800e683828782fb4407a4                                                           0.0s
+ => => exporting config sha256:c5e4aa18bcf37ed7af61dc14f11537a2a7be13b4c997d6a4b66176ffcb8ac910                                                             0.0s
+ => => exporting attestation manifest sha256:5196ff94e6fcba748fd90122ca90a2aa17edb3aa523798edd90087ac099e487e                                               0.0s
+ => => exporting manifest list sha256:be4e00f794fbb43b182b04f5d21a341f4450800c4c2364356c5240c0c94458ac                                                      0.0s
+ => => naming to localhost:5000/microservices/product-service:latest                                                                                        0.0s
+ => => unpacking to localhost:5000/microservices/product-service:latest                                                                                     0.0s
+
+ 2 warnings found (use docker --debug to expand):
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 24)
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+[16:57:24] enviando user-service al registry...
+invalid reference format
+❯ curl http://localhost:8000/health
+{"status":"healthy","service":"user-service"}#                                                                                                                   
+❯ curl http://localhost:8001/health
+{"status":"healthy","service":"product-service"}#                                                                                                                
+❯ curl http://localhost:8000/users
+[]#                                                                                                                                                              
+❯ curl http://localhost:8001/products
+[]#                     
