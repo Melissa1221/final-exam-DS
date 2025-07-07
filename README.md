@@ -86,5 +86,9 @@ curl http://localhost:8001/health
 curl http://localhost:8000/users
 curl http://localhost:8001/products
 ```
+Se puede verificar el funcionamiento y prueba de las apis en el swagger de documentación automática que provee fastapi en la siguiente ruta
+```txt
+http://localhost:8000
+```
 
 Problema 4

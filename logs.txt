@@ -110,3 +110,29 @@ invalid reference format
 []#                                                                                                                                                              
 ❯ curl http://localhost:8001/products
 []#                     
+
+
+curl -X 'POST' \
+  'http://localhost:8000/users' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "melissa",
+  "email": "melissa.iman.n@uni.pe",
+  "age": 20
+}'
+
+curl -X 'GET' \
+  'http://localhost:8000/users' \
+  -H 'accept: application/json'
+
+	
+Response body
+[
+  {
+    "id": "b25ee4fb-0943-4894-921f-bf4dc9b479f5",
+    "name": "melissa",
+    "email": "melissa.iman.n@uni.pe",
+    "age": 20
+  }
+]
