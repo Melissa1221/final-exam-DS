@@ -1,0 +1,188 @@
+version: '3.8'
+
+services:
+  # simulacion de servicios de kubernetes
+  k8s-master:
+    image: nginx:alpine
+    container_name: k8s-master-sim
+    ports:
+      - "6443:80"
+    volumes:
+      - ./e2e/k8s-master:/usr/share/nginx/html:ro
+      - ./mocks/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NODE_TYPE=master
+      - CLUSTER_NAME=test-cluster
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  k8s-worker-1:
+    image: nginx:alpine
+    container_name: k8s-worker-1-sim
+    ports:
+      - "10250:80"
+    volumes:
+      - ./e2e/k8s-worker:/usr/share/nginx/html:ro
+      - ./mocks/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NODE_TYPE=worker
+      - NODE_ID=worker-1
+    networks:
+      - e2e-network
+    depends_on:
+      - k8s-master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  k8s-worker-2:
+    image: nginx:alpine
+    container_name: k8s-worker-2-sim
+    ports:
+      - "10251:80"
+    volumes:
+      - ./e2e/k8s-worker:/usr/share/nginx/html:ro
+      - ./mocks/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NODE_TYPE=worker
+      - NODE_ID=worker-2
+    networks:
+      - e2e-network
+    depends_on:
+      - k8s-master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # servicios de aplicaciones
+  nginx-demo:
+    image: nginx:alpine
+    container_name: nginx-demo-app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./e2e/apps/nginx:/usr/share/nginx/html:ro
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-sim
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./e2e/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # bastion host simulado
+  bastion-host:
+    image: alpine:latest
+    container_name: bastion-host-sim
+    ports:
+      - "2222:22"
+    command: >
+      sh -c "apk add --no-cache openssh-server &&
+             ssh-keygen -A &&
+             echo 'root:password' | chpasswd &&
+             sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+             /usr/sbin/sshd -D"
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "22"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # grafana para monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-sim
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_INSTALL_PLUGINS=prometheus
+    volumes:
+      - ./e2e/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./e2e/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - e2e-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # test runner para e2e
+  e2e-test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    container_name: e2e-test-runner
+    volumes:
+      - ../:/app:ro
+      - ./test-results:/app/test-results
+    environment:
+      - K8S_MASTER_URL=http://k8s-master:80
+      - K8S_WORKER_1_URL=http://k8s-worker-1:80
+      - K8S_WORKER_2_URL=http://k8s-worker-2:80
+      - NGINX_DEMO_URL=http://nginx-demo:80
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+      - BASTION_HOST=bastion-host
+      - BASTION_PORT=22
+    depends_on:
+      k8s-master:
+        condition: service_healthy
+      k8s-worker-1:
+        condition: service_healthy
+      k8s-worker-2:
+        condition: service_healthy
+      nginx-demo:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+      bastion-host:
+        condition: service_healthy
+    networks:
+      - e2e-network
+    profiles:
+      - test
+
+networks:
+  e2e-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 
