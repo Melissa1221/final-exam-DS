@@ -1,0 +1,31 @@
+[flake8]
+max-line-length = 100
+max-complexity = 10
+select = E,W,F,C
+ignore = 
+    E203,    
+    E501,   
+    W503,   
+    E231    
+
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    .terraform,
+    terraform/.terraform,
+    build,
+    dist,
+    *.egg-info
+
+per-file-ignores =
+    __init__.py:F401   
+
+docstring-convention = google
+
+max-complexity = 10
+
+classmethod-decorators = classmethod,property
+staticmethod-decorators = staticmethod
+
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s 
