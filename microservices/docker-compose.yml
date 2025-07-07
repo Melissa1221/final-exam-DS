@@ -1,0 +1,40 @@
+services:
+  # servicio de usuarios
+  user-service:
+    build: 
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    volumes:
+      - shared-data:/app/data
+    networks:
+      - microservices-network
+
+  # servicio de productos  
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    volumes:
+      - shared-data:/app/data
+    networks:
+      - microservices-network
+
+# volumen compartido
+volumes:
+  shared-data:
+    driver: local
+
+# red interna
+networks:
+  microservices-network:
+    driver: bridge 
